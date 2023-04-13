@@ -19,9 +19,8 @@ argparse_add_flag       "flag"      "-f"                  "This is a flag. 0 if 
 argparse_add_optional   "option"    "-o" "another_string" "This is an optional argument, which expects a value."
 argparse_add_mandatory  "mandatory" "-m"                  "This is a mandatory argument, which expects a value"
 argparse_add_positional "positional"                      "This is a positional argument."
+argparse_add_flag       "help"      "-h"                  "Print this message and exit."
 
-# Print 'usage' message to screen
-argparse_print_usage
 
 # Evaluate arguments and print results
 argparse_eval
@@ -29,3 +28,6 @@ printf "flag       = %s\n" ${argparse_output["flag"]}
 printf "option     = %s\n" ${argparse_output["option"]}
 printf "mandatory  = %s\n" ${argparse_output["mandatory"]}
 printf "positional = %s\n" ${argparse_output["positional"]}
+
+# Print 'usage' message to screen, if -h flag is set
+[[ ${argparse_output["help"]} ]] && argparse_print_usage && exit 0
