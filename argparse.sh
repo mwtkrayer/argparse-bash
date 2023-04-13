@@ -181,11 +181,11 @@ argparse_print_usage(){
   # Options
   for (( ii=0; ii<$narg; ii++ )); do
     if [[ "${_argp_type[ii]}" == "f" ]]; then
-      printf ' %2s|--%-32s %s\n' ${_argp_char[ii]} ${_argp_name[ii]} "${_argp_help[ii]}"
+      printf ' %2s|--%-32s %s\n' "${_argp_char[ii]}" "${_argp_name[ii]}" "${_argp_help[ii]}"
     elif [[ "${_argp_type[ii]}" == "m" ]]; then
-      printf ' %2s|--%-32s %s\n' ${_argp_char[ii]} ${_argp_name[ii]} "${_argp_help[ii]}"
+      printf ' %2s|--%-32s %s\n' "${_argp_char[ii]}" "${_argp_name[ii]} <val>" "${_argp_help[ii]}"
     elif [[ "${_argp_type[ii]}" == "o" ]]; then
-      printf ' %2s|--%-32s %s (Default: %s)\n' ${_argp_char[ii]} ${_argp_name[ii]} "${_argp_help[ii]}" ${_argp_val[ii]}
+      printf ' %2s|--%-32s %s (Default: %s)\n' "${_argp_char[ii]}" "${_argp_name[ii]} <val>" "${_argp_help[ii]}" "${_argp_val[ii]}"
     elif [[ "${_argp_type[ii]}" == "p" ]]; then
       printf ' %-37s %s\n' "<${_argp_name[ii]}>" "${_argp_help[ii]}"
     fi
