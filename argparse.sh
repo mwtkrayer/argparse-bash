@@ -26,7 +26,7 @@ declare -A argparse_output=()
 
 argparse_add_flag(){
   _argparse_assert "[[ '$#' == 3 ]]"             "[argparse_add_flag] expecting <name> <char> <help> arguments. (got $# arguments)"
-  _argparse_assert "[[ '$1' =~ ^[a-zA-Z_]+\$ ]]" "[argparse_add_flag] expecting <name> as 1st argument: must contain letters only. (got $1)" 
+  _argparse_assert "[[ '$1' =~ ^[a-zA-Z][a-zA-Z0-9_-]*\$ ]]" "[argparse_add_flag] expecting <name> as 1st argument: must contain letters only. (got $1)" 
   _argparse_assert "[[ '$2' =~ ^-[a-zA-Z]\$ ]]"  "[argparse_add_flag] expecting <char> as 2nd argument: must begin with - and contain only single letter only. (got $2)"
   _argparse_verify_state
   _argparse_verify_nonduplicate $1 $2
@@ -39,7 +39,7 @@ argparse_add_flag(){
 
 argparse_add_optional(){
   _argparse_assert "[[ '$#' == 4 ]]"             "[argparse_add_optional] expecting <name> <char> <value> <help> arguments. (got $# arguments)"
-  _argparse_assert "[[ '$1' =~ ^[a-zA-Z_]+\$ ]]" "[argparse_add_optional] expecting <name> as 1st argument: must contain letters only. (got $1)" 
+  _argparse_assert "[[ '$1' =~ ^[a-zA-Z][a-zA-Z0-9_-]*\$ ]]" "[argparse_add_optional] expecting <name> as 1st argument: must contain letters only. (got $1)" 
   _argparse_assert "[[ '$2' =~ ^-[a-zA-Z]\$ ]]"  "[argparse_add_optional] expecting <char> as 2nd argument: must begin with - and contain only single letter only. (got $2)"
   _argparse_verify_state
   _argparse_verify_nonduplicate $1 $2
@@ -52,7 +52,7 @@ argparse_add_optional(){
 
 argparse_add_mandatory(){
   _argparse_assert "[[ '$#' == 3 ]]"             "[argparse_add_mandatory] expecting <name> <char> <help> arguments. (got $# arguments)"
-  _argparse_assert "[[ '$1' =~ ^[a-zA-Z_]+\$ ]]" "[argparse_add_mandatory] expecting <name> as 1st argument: must contain letters only. (got $1)" 
+  _argparse_assert "[[ '$1' =~ ^[a-zA-Z][a-zA-Z0-9_-]*\$ ]]" "[argparse_add_mandatory] expecting <name> as 1st argument: must contain letters only. (got $1)" 
   _argparse_assert "[[ '$2' =~ ^-[a-zA-Z]\$ ]]"  "[argparse_add_mandatory] expecting <char> as 2nd argument: must begin with - and contain only single letter only. (got $2)"
   _argparse_verify_state
   _argparse_verify_nonduplicate $1 $2
@@ -65,7 +65,7 @@ argparse_add_mandatory(){
 
 argparse_add_positional(){
   _argparse_assert "[[ '$#' == 2 ]]"             "[argparse_add_positional] expecting <name> <help> arguments. (got $# arguments)"
-  _argparse_assert "[[ '$1' =~ ^[a-zA-Z_]+\$ ]]" "[argparse_add_positional] expecting <name> as 1st argument: must contain letters only. (got $1)" 
+  _argparse_assert "[[ '$1' =~ ^[a-zA-Z][a-zA-Z0-9_-]*\$ ]]" "[argparse_add_positional] expecting <name> as 1st argument: must contain letters only. (got $1)" 
   _argparse_verify_state
   _argparse_verify_nonduplicate $1 "-" # dummy char which should never match
   _argp_name+=("$1")
@@ -110,7 +110,7 @@ argparse_eval(){
         fi
       done
       [[ $ifound == 0 ]] && argparse_print_usage && printf "[argparse_eval] Error! Unknown argument detected: %s\n" ${_input} 1>&2 && exit 254
-    elif [[ "${_input}" =~ ^--[a-zA-Z_]+$ ]]; then # name mode
+    elif [[ "${_input}" =~ ^--[a-zA-Z][a-zA-Z0-9_-]*$ ]]; then # name mode
       for (( ii=0; ii<${narg}; ii++ )); do
         if [[ "--${_argp_name[ii]}" == "${_input}" ]]; then
           ifound=1
