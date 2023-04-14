@@ -148,7 +148,6 @@ argparse_eval(){
   done
   # Verify that we are not missing mandatory or positional arguments
   for (( ii=0; ii<${narg}; ii++ )); do
-    echo ${_argp_name[ii]}
     [[ "${_argp_type[ii]}" == "m" ]] && [[ "${evald[ii]}" == 0 ]] && argparse_print_usage && printf "[argparse_eval] Error! Mandatory argument '%s' missing.\n" "${_argp_name[ii]}" 1>&2 && exit 253
     [[ "${_argp_type[ii]}" == "p" ]] && [[ "${evald[ii]}" == 0 ]] && argparse_print_usage && printf "[argparse_eval] Error! Positional argument '%s' missing.\n" "${_argp_name[ii]}" 1>&2 && exit 253
   done
