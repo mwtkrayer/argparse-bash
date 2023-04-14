@@ -30,4 +30,4 @@ printf "mandatory  = %s\n" ${argparse_output["mandatory"]}
 printf "positional = %s\n" ${argparse_output["positional"]}
 
 # Print 'usage' message to screen, if -h flag is set
-[[ ${argparse_output["help"]} ]] && argparse_print_usage && exit 0
+[[ ${argparse_output["help"]} > 0 ]] && argparse_print_usage && exit 0
