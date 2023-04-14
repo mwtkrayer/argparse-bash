@@ -25,9 +25,9 @@ declare    _argp_type=()  # f,m,o,p for flag,mandatory,optional,positional
 declare -A argparse_output=()
 
 argparse_add_flag(){
-  _argparse_assert "[[ '$#' == 3 ]]"            "[argparse_add_flag] expecting <name> <char> <help> arguments. (got $# arguments)"
+  _argparse_assert "[[ '$#' == 3 ]]"             "[argparse_add_flag] expecting <name> <char> <help> arguments. (got $# arguments)"
   _argparse_assert "[[ '$1' =~ ^[a-zA-Z_]+\$ ]]" "[argparse_add_flag] expecting <name> as 1st argument: must contain letters only. (got $1)" 
-  _argparse_assert "[[ '$2' =~ ^-[a-zA-Z]\$ ]]" "[argparse_add_flag] expecting <char> as 2nd argument: must begin with - and contain only single letter only. (got $2)"
+  _argparse_assert "[[ '$2' =~ ^-[a-zA-Z]\$ ]]"  "[argparse_add_flag] expecting <char> as 2nd argument: must begin with - and contain only single letter only. (got $2)"
   _argparse_verify_state
   _argparse_verify_nonduplicate $1 $2
   _argp_name+=("$1")
@@ -38,9 +38,9 @@ argparse_add_flag(){
 }
 
 argparse_add_optional(){
-  _argparse_assert "[[ '$#' == 4 ]]"            "[argparse_add_optional] expecting <name> <char> <value> <help> arguments. (got $# arguments)"
+  _argparse_assert "[[ '$#' == 4 ]]"             "[argparse_add_optional] expecting <name> <char> <value> <help> arguments. (got $# arguments)"
   _argparse_assert "[[ '$1' =~ ^[a-zA-Z_]+\$ ]]" "[argparse_add_optional] expecting <name> as 1st argument: must contain letters only. (got $1)" 
-  _argparse_assert "[[ '$2' =~ ^-[a-zA-Z]\$ ]]" "[argparse_add_optional] expecting <char> as 2nd argument: must begin with - and contain only single letter only. (got $2)"
+  _argparse_assert "[[ '$2' =~ ^-[a-zA-Z]\$ ]]"  "[argparse_add_optional] expecting <char> as 2nd argument: must begin with - and contain only single letter only. (got $2)"
   _argparse_verify_state
   _argparse_verify_nonduplicate $1 $2
   _argp_name+=("$1")
@@ -51,9 +51,9 @@ argparse_add_optional(){
 }
 
 argparse_add_mandatory(){
-  _argparse_assert "[[ '$#' == 3 ]]"            "[argparse_add_mandatory] expecting <name> <char> <help> arguments. (got $# arguments)"
+  _argparse_assert "[[ '$#' == 3 ]]"             "[argparse_add_mandatory] expecting <name> <char> <help> arguments. (got $# arguments)"
   _argparse_assert "[[ '$1' =~ ^[a-zA-Z_]+\$ ]]" "[argparse_add_mandatory] expecting <name> as 1st argument: must contain letters only. (got $1)" 
-  _argparse_assert "[[ '$2' =~ ^-[a-zA-Z]\$ ]]" "[argparse_add_mandatory] expecting <char> as 2nd argument: must begin with - and contain only single letter only. (got $2)"
+  _argparse_assert "[[ '$2' =~ ^-[a-zA-Z]\$ ]]"  "[argparse_add_mandatory] expecting <char> as 2nd argument: must begin with - and contain only single letter only. (got $2)"
   _argparse_verify_state
   _argparse_verify_nonduplicate $1 $2
   _argp_name+=("$1")
@@ -64,7 +64,7 @@ argparse_add_mandatory(){
 }
 
 argparse_add_positional(){
-  _argparse_assert "[[ '$#' == 2 ]]"            "[argparse_add_positional] expecting <name> <help> arguments. (got $# arguments)"
+  _argparse_assert "[[ '$#' == 2 ]]"             "[argparse_add_positional] expecting <name> <help> arguments. (got $# arguments)"
   _argparse_assert "[[ '$1' =~ ^[a-zA-Z_]+\$ ]]" "[argparse_add_positional] expecting <name> as 1st argument: must contain letters only. (got $1)" 
   _argparse_verify_state
   _argparse_verify_nonduplicate $1 "-" # dummy char which should never match
@@ -79,6 +79,7 @@ argparse_eval(){
   _argparse_verify_state
   declare -i narg=${#_argp_name[@]}
   declare -ai evald=() # flag whether argument has already been evaluated
+  declare -i ii=0
   for (( ii=0; ii<${narg}; ii++ )); do 
     evald+=(0); 
   done
@@ -89,7 +90,6 @@ argparse_eval(){
   declare -i iargpos=-1 # iarg of last positional argument evaluated
   declare -i ifound=0
   for _input in ${_argp_all_args[*]}; do
-    echo $_input
     # If previous iteration expects a value to be read, do it now
     if [[ $readval > 0 ]]; then
       _argp_val[iarg]="${_input}"
@@ -109,7 +109,7 @@ argparse_eval(){
           break
         fi
       done
-      [[ $ifound == 0 ]] && printf "[argparse_eval] Error! Unknown argument detected: %s\n" ${_input} 1>&2 && exit 254
+      [[ $ifound == 0 ]] && argparse_print_usage && printf "[argparse_eval] Error! Unknown argument detected: %s\n" ${_input} 1>&2 && exit 254
     elif [[ "${_input}" =~ ^--[a-zA-Z_]+$ ]]; then # name mode
       for (( ii=0; ii<${narg}; ii++ )); do
         if [[ "--${_argp_name[ii]}" == "${_input}" ]]; then
@@ -119,7 +119,7 @@ argparse_eval(){
           break
         fi
       done
-      [[ $ifound == 0 ]] && printf "[argparse_eval] Error! Unknown argument detected: %s\n" ${_input} 1>&2 && exit 254
+      [[ $ifound == 0 ]] && argparse_print_usage && printf "[argparse_eval] Error! Unknown argument detected: %s\n" ${_input} 1>&2 && exit 254
     else # positional mode
       for (( ii=${iargpos}+1; ii<${narg}; ii++ )); do
         if [[ "${_argp_type[ii]}" == "p" ]]; then
@@ -131,7 +131,7 @@ argparse_eval(){
           break
         fi
       done
-      [[ $ifound == 0 ]] && printf "[argparse_eval] Error! Too many positional arguments provided.\n" 1>&2 && exit 254
+      [[ $ifound == 0 ]] && argparse_print_usage && printf "[argparse_eval] Error! Too many positional arguments provided.\n" 1>&2 && exit 254
     fi
     # Determine if we need to read a value in next iteration
     if [[ ${ifound} > 0 ]] && [[ ${evald[iarg]} == 0 ]]; then 
@@ -148,8 +148,9 @@ argparse_eval(){
   done
   # Verify that we are not missing mandatory or positional arguments
   for (( ii=0; ii<${narg}; ii++ )); do
-    [[ "${_argp_type[ii]}" == "m" ]] && [[ "${evald[ii]}" == 0 ]] && printf "[argparse_eval] Error! Mandatory argument '%s' missing.\n" "${_argp_name[ii]}" 1>&2 && exit 253
-    [[ "${_argp_type[ii]}" == "p" ]] && [[ "${evald[ii]}" == 0 ]] && printf "[argparse_eval] Error! Positional argument '%s' missing.\n" "${_argp_name[ii]}" 1>&2 && exit 253
+    echo ${_argp_name[ii]}
+    [[ "${_argp_type[ii]}" == "m" ]] && [[ "${evald[ii]}" == 0 ]] && argparse_print_usage && printf "[argparse_eval] Error! Mandatory argument '%s' missing.\n" "${_argp_name[ii]}" 1>&2 && exit 253
+    [[ "${_argp_type[ii]}" == "p" ]] && [[ "${evald[ii]}" == 0 ]] && argparse_print_usage && printf "[argparse_eval] Error! Positional argument '%s' missing.\n" "${_argp_name[ii]}" 1>&2 && exit 253
   done
   # Assign output
   for (( ii=0; ii<${narg}; ii++ )); do
@@ -165,6 +166,7 @@ argparse_print_usage(){
   # Usage string
   printf "Usage: %s" $_argp_prog_name
   declare -i narg=${#_argp_name[@]}
+  declare -i ii=0
   for (( ii=0; ii<$narg; ii++ )); do
     if [[ "${_argp_type[ii]}" == "f" ]]; then
       printf ' [%s]' ${_argp_char[ii]}
